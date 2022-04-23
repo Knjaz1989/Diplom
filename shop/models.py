@@ -30,6 +30,8 @@ class User(AbstractUser):
     Стандартная модель пользователей
     """
     email = models.EmailField(max_length=255, unique=True, db_index=True)
+    username = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100, blank=True)
     type = models.CharField(verbose_name='Тип пользователя', choices=USER_TYPE_CHOICES, max_length=5, default='buyer')
     is_active = models.BooleanField(default=False, help_text=_(
             'Designates whether this user should be treated as active. '
