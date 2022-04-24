@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-# from django_rest_passwordreset.tokens import get_token_generator
+from django_rest_passwordreset.tokens import get_token_generator
 
 STATE_CHOICES = (
     ('basket', 'Статус корзины'),
@@ -58,8 +58,6 @@ class Shop(models.Model):
                                 blank=True, null=True,
                                 on_delete=models.CASCADE)
     state = models.BooleanField(verbose_name='статус получения заказов', default=True)
-
-    # filename
 
     class Meta:
         verbose_name = 'Магазин'
@@ -213,7 +211,7 @@ class ConfirmEmailToken(models.Model):
     @staticmethod
     def generate_key():
         """ generates a pseudo random code using os.urandom and binascii.hexlify """
-        return #get_token_generator().generate_token()
+        return get_token_generator().generate_token()
 
     user = models.ForeignKey(
         User,

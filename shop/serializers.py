@@ -1,7 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework.serializers import ModelSerializer
 
-from shop.models import User
+from shop.models import User, Shop, Category
 
 
 class UserSerializer(ModelSerializer):
@@ -16,3 +16,17 @@ class UserSerializer(ModelSerializer):
         user = User.objects.create(**validated_data)
 
         return user
+
+
+class ShopSerializer(ModelSerializer):
+    class Meta:
+        model = Shop
+        fields = ('id', 'name', 'state',)
+        # read_only_fields = ('id',)
+
+
+class CategorySerializer(ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name',)
+        # read_only_fields = ('id',)

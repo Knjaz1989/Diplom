@@ -40,8 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'shop.apps.ShopConfig',
     'rest_framework',
-    'shop'
+    # 'shop'
 ]
 
 MIDDLEWARE = [
@@ -129,3 +130,15 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'shop.User'
+
+#send mail
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_USE_TLS = True
+
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_HOST_USER = 'netology-pdiplom@mail.ru'
+EMAIL_HOST_PASSWORD = 'i~8W4rdRPFlo'
+EMAIL_PORT = '465'
+EMAIL_USE_SSL = True
+SERVER_EMAIL = EMAIL_HOST_USER
