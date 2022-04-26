@@ -8,7 +8,7 @@ from rest_framework.reverse import reverse
 @pytest.mark.django_db
 class TestAPI:
     user_create_data = [
-        ({"email": "knjaz1989@yandex.ru", "password": "abc", "username": "Vasiliy", "type": "buyer"}, 201, "buyer"),
+        ({"email": "knjaz1989@yandex.ru", "password": "abc", "type": "buyer"}, 201, "buyer"),
         # ({"email": "b@b.com", "password": "abc", "username": "Petya"}, 201, "buyer"),
         # ({"email": "c@c.com", "password": "abc", "username": "Dmitriy", "type": "shop"}, 201, "shop"),
         ({}, 400, None)

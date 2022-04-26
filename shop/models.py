@@ -30,8 +30,8 @@ class User(AbstractUser):
     Стандартная модель пользователей
     """
     email = models.EmailField(max_length=255, unique=True, db_index=True)
-    username = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100, blank=True)
+    first_name = models.CharField(max_length=100, blank=True, default="Пользователь", help_text="Поле необязательное")
+    last_name = models.CharField(max_length=100, blank=True, help_text="Поле необязательное")
     type = models.CharField(verbose_name='Тип пользователя', choices=USER_TYPE_CHOICES, max_length=5, default='buyer')
     is_active = models.BooleanField(default=False, help_text=_(
             'Designates whether this user should be treated as active. '
@@ -53,11 +53,11 @@ class User(AbstractUser):
 
 class Shop(models.Model):
     name = models.CharField(max_length=50, verbose_name='Название')
-    url = models.URLField(verbose_name='Ссылка', null=True, blank=True)
+    url = models.URLField(verbose_name='Ссылка на магазин', null=True, blank=True)
     user = models.OneToOneField(User, verbose_name='Пользователь',
                                 blank=True, null=True,
                                 on_delete=models.CASCADE)
-    state = models.BooleanField(verbose_name='статус получения заказов', default=True)
+    state = models.BooleanField(verbose_name='Cтатус получения заказов', default=True)
 
     class Meta:
         verbose_name = 'Магазин'

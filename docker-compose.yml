@@ -10,3 +10,11 @@ services:
       - .env
     ports:
       - "5434:5432"
+
+  smtp-server:
+    image: mailhog/mailhog:latest
+    container_name: smtp-server
+    restart: always
+    ports:
+      - "1025:1025"
+      - "8025:8025"

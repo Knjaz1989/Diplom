@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, send_mail
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -24,4 +24,5 @@ def new_user_registered_signal(sender, instance, created, **kwargs):
         # to:
         [token.user.email]
     )
-    msg.send()
+    # msg.send()
+    send_mail("Confirm token", f"Password Reset Token for {token.user.email}", 'admin@admin.ru', [token.user.email], fail_silently=False)

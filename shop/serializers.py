@@ -8,7 +8,7 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["username", "password", "first_name", "last_name", "email", "type"]
+        fields = ["password", "first_name", "last_name", "email", "type"]
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
@@ -21,12 +21,18 @@ class UserSerializer(ModelSerializer):
 class ShopSerializer(ModelSerializer):
     class Meta:
         model = Shop
-        fields = ('id', 'name', 'state',)
-        # read_only_fields = ('id',)
+        fields = ('id', 'name', 'url')
+        read_only_fields = ('id',)
 
 
 class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
         fields = ('id', 'name',)
-        # read_only_fields = ('id',)
+        read_only_fields = ('id',)
+
+
+class StateSerializer(ModelSerializer):
+    class Meta:
+        model = Shop
+        fields = ('state')
