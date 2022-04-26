@@ -24,5 +24,5 @@ def new_user_registered_signal(sender, instance, created, **kwargs):
         # to:
         [token.user.email]
     )
-    # msg.send()
-    send_mail("Confirm token", f"Password Reset Token for {token.user.email}", 'admin@admin.ru', [token.user.email], fail_silently=False)
+    msg.send()
+    # send_mail("Confirm token", f"Password Reset Token for {token.user.email}", 'admin@admin.ru', [token.user.email], fail_silently=False)
