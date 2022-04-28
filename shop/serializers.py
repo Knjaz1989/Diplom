@@ -1,11 +1,10 @@
 from django.contrib.auth.hashers import make_password
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
+from shop.models import User, Shop, Category, ConfirmEmailToken
+from rest_framework.exceptions import ValidationError, bad_request
 
-from shop.models import User, Shop, Category
 
-
-class UserSerializer(ModelSerializer):
-
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["password", "first_name", "last_name", "email", "type"]
@@ -18,21 +17,35 @@ class UserSerializer(ModelSerializer):
         return user
 
 
-class ShopSerializer(ModelSerializer):
+class ConfirmAccountSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    token = serializers.CharField(max_length=150)
+
+
+class LoginAccountSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(max_length=150)
+
+    class Meta:
+        model = ConfirmEmailToken
+        fields = ['email', 'password']
+
+
+class ShopSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shop
         fields = ('id', 'name', 'url')
         read_only_fields = ('id',)
 
 
-class CategorySerializer(ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('id', 'name',)
         read_only_fields = ('id',)
 
 
-class StateSerializer(ModelSerializer):
-    class Meta:
-        model = Shop
-        fields = ('state')
+# class StateSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Shop
+#         fields = ('state')

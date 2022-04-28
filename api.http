@@ -1,0 +1,71 @@
+# create supplier
+POST http://localhost:8000/api/v1/user/register
+Content-Type: application/json
+
+{
+"email": "shop@shop.ru",
+"password": "Newshop",
+"type": "shop"
+}
+
+###
+
+POST http://localhost:8000/api/v1/user/register/confirm
+Content-Type: application/json
+
+{
+"email": "shop@shop.ru",
+"token": "eb89a29289ff2034e23bd3665b0c9fefebceb"
+}
+
+###
+
+POST http://localhost:8000/api/v1/user/login
+Content-Type: application/json
+
+{
+"email": "shop@shop.ru",
+"password": "Newshop"
+}
+
+###
+
+GET http://localhost:8000/api/v1/partner/state
+Authorization: Token dd3ceeb699f381a3849fa74b0059760349888df2
+
+###
+# create buyer
+POST http://localhost:8000/api/v1/user/register
+Content-Type: application/json
+
+{
+"email": "buyer@buyer.ru",
+"password": "Newbuyer"
+}
+
+###
+
+POST http://localhost:8000/api/v1/user/register/confirm
+Content-Type: application/json
+
+{
+"email": "buyer@buyer.ru",
+"token": "9030483f79160dbde259632c88853149d77c5db8ae8a9"
+}
+
+###
+
+POST http://localhost:8000/api/v1/user/login
+Content-Type: application/json
+
+{
+"email": "buyer@buyer.ru",
+"password": "Newbuyer"
+}
+
+###
+
+GET http://localhost:8000/api/v1/partner/state
+Authorization: Token 158556830b39a01196ed74ec755080a89fe23995
+
+###
