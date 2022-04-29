@@ -112,8 +112,12 @@ Authorization: Token 43da1cae50c510f0d1865a739b87c20d4aa67493
 
 ###
 
-
 DELETE http://localhost:8000/api/v1/user/contact/10/
+Authorization: Token 43da1cae50c510f0d1865a739b87c20d4aa67493
+
+###
+
+GET http://localhost:8000/api/v1/shops/
 Authorization: Token 43da1cae50c510f0d1865a739b87c20d4aa67493
 
 ###
