@@ -15,7 +15,7 @@ Content-Type: application/json
 
 {
   "email": "shop@shop.ru",
-  "token": "eb89a29289ff2034e23bd3665b0c9fefebceb"
+  "token": "0ec09c15dbeb2d347f20e285fdd16dbeefe3f89e"
 }
 
 ###
@@ -31,12 +31,12 @@ Content-Type: application/json
 ###
 
 GET http://localhost:8000/api/v1/partner/state
-Authorization: Token dd3ceeb699f381a3849fa74b0059760349888df2
+Authorization: Token a5d9e2acf7d4f2d7186fe348abcf2fbb8d5679cb
 
 ###
 
 POST http://localhost:8000/api/v1/partner/state
-Authorization: Token dd3ceeb699f381a3849fa74b0059760349888df2
+Authorization: Token a5d9e2acf7d4f2d7186fe348abcf2fbb8d5679cb
 Content-Type: application/json
 
 {
@@ -45,7 +45,7 @@ Content-Type: application/json
 
 ###
 POST http://localhost:8000/api/v1/partner/update
-Authorization: Token dd3ceeb699f381a3849fa74b0059760349888df2
+Authorization: Token a5d9e2acf7d4f2d7186fe348abcf2fbb8d5679cb
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 
 --WebAppBoundary
