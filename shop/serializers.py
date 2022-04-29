@@ -35,7 +35,7 @@ class PartnerUpdateSerializer(serializers.Serializer):
 class ShopSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shop
-        fields = ('id', 'name', 'url')
+        fields = ('id', 'name', 'state')
         read_only_fields = ('id',)
 
 

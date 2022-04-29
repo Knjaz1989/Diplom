@@ -71,7 +71,7 @@ class LoginAccount(CreateAPIView):
         return Response({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PartnerState(CreateAPIView, ListAPIView):
+class PartnerState(APIView):
     """
     Класс для работы со статусом поставщика
     """
@@ -82,7 +82,7 @@ class PartnerState(CreateAPIView, ListAPIView):
     def get(self, request, *args, **kwargs):
 
         if request.user.type != 'shop':
-            return JsonResponse({'Status': False, 'Error': 'Только для магазинов'}, status=403)
+            return Response({'Status': False, 'Error': 'Только для магазинов'}, status=status.HTTP_403_FORBIDDEN)
 
         shop = request.user.shop
         serializer = ShopSerializer(shop)
@@ -92,16 +92,16 @@ class PartnerState(CreateAPIView, ListAPIView):
     def post(self, request, *args, **kwargs):
 
         if request.user.type != 'shop':
-            return JsonResponse({'Status': False, 'Error': 'Только для магазинов'}, status=403)
+            return JsonResponse({'Status': False, 'Error': 'Только для магазинов'}, status=status.HTTP_403_FORBIDDEN)
         state = request.data.get('state')
-        if state:
+        if state and len(request.data) == 1:
             try:
                 Shop.objects.filter(user_id=request.user.id).update(state=strtobool(state))
-                return JsonResponse({'Status': True})
+                return Response({'Status': f"Changed on {state}"})
             except ValueError as error:
-                return JsonResponse({'Status': False, 'Errors': str(error)})
+                return Response({'Status': False, 'Errors': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
-        return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
+        return Response({'Status': False, 'Errors': 'Не указаны все необходимые аргументы или переданы лишние'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PartnerUpdate(APIView):
@@ -118,13 +118,6 @@ class PartnerUpdate(APIView):
 
         file = request.data.get('file')
         if file:
-            # validate_url = URLValidator()
-            # try:
-            #     validate_url(url)
-            # except ValidationError as e:
-            #     return Response({'Status': False, 'Error': str(e)})
-            # else:
-            #     stream = get(url).content
 
             data = load_yaml(file, Loader=Loader)
 
