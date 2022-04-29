@@ -72,7 +72,7 @@ Content-Type: application/json
 
 {
 "email": "buyer@buyer.ru",
-"token": "9030483f79160dbde259632c88853149d77c5db8ae8a9"
+"token": "97ea99e0f88ac7ba8528c9cbe"
 }
 
 ###
@@ -88,6 +88,32 @@ Content-Type: application/json
 ###
 
 GET http://localhost:8000/api/v1/partner/state
-Authorization: Token 158556830b39a01196ed74ec755080a89fe23995
+Authorization: Token 43da1cae50c510f0d1865a739b87c20d4aa67493
+Content-Type: application/json
+
+###
+
+POST http://localhost:8000/api/v1/user/contact
+Authorization: Token 43da1cae50c510f0d1865a739b87c20d4aa67493
+Content-Type: application/json
+
+{
+  "city": "Воронеж",
+  "street": "Плехановская",
+  "house": "31",
+  "apartment": "15",
+  "phone": "+7800800800"
+}
+
+###
+
+GET http://localhost:8000/api/v1/user/contact
+Authorization: Token 43da1cae50c510f0d1865a739b87c20d4aa67493
+
+###
+
+
+DELETE http://localhost:8000/api/v1/user/contact/10/
+Authorization: Token 43da1cae50c510f0d1865a739b87c20d4aa67493
 
 ###

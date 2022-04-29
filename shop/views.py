@@ -5,7 +5,7 @@ from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth import authenticate
 from django.http import JsonResponse
 from rest_framework.authtoken.models import Token
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,9 +15,12 @@ from django.core.exceptions import ValidationError
 from requests import get
 from rest_framework.viewsets import ModelViewSet
 
-from shop.models import User, Shop, Category, ConfirmEmailToken, ProductInfo, Product, Parameter, ProductParameter
-from shop.serializers import UserSerializer, ShopSerializer, CategorySerializer, \
-    ConfirmAccountSerializer, LoginAccountSerializer, PartnerUpdateSerializer
+from shop.models import User, Shop, Category, ConfirmEmailToken, ProductInfo, \
+    Product, Parameter, ProductParameter, Contact
+from shop.permissions import IsBuyer
+from shop.serializers import UserSerializer, ShopSerializer, \
+    CategorySerializer, ConfirmAccountSerializer, LoginAccountSerializer, \
+    PartnerUpdateSerializer, ContactSerializer
 
 
 class UserRegisterView(CreateAPIView):
@@ -153,7 +156,6 @@ class PartnerUpdate(APIView):
         return Response({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class ShopView(ListAPIView):
     """
     Класс для просмотра списка магазинов
@@ -168,3 +170,30 @@ class CategoryView(ListAPIView):
     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
+
+class ContactView(ModelViewSet):
+    """
+    Класс для работы с контактами покупателей
+    """
+    serializer_class = ContactSerializer
+    permission_classes = [IsAuthenticated, IsBuyer]
+    authentication_classes = [TokenAuthentication]
+
+    # получить мои контакты
+    def get_queryset(self):
+        user_contacts = Contact.objects.filter(
+            user_id=self.request.user.id)
+        return user_contacts
+
+    # добавить новый контакт. не больше 5
+    def create(self, request, *args, **kwargs):
+        user_contacts = Contact.objects.filter(
+            user_id=self.request.user.id)
+        if len(user_contacts) == 5:
+            return Response({"Status": "У вас уже есть 5 контактов. Удалите или измените любой из них"}, status=status.HTTP_403_FORBIDDEN)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

@@ -1,6 +1,6 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-from shop.models import User, Shop, Category, ConfirmEmailToken
+from shop.models import User, Shop, Category, ConfirmEmailToken, Contact
 from rest_framework.exceptions import ValidationError, bad_request
 
 
@@ -46,7 +46,12 @@ class CategorySerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
-# class StateSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Shop
-#         fields = ('state')
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        exclude = ['user']
+        read_only_fields = ('id',)
+
+    def create(self, validated_data):
+        validated_data["user"] = self.context["request"].user
+        return Contact.objects.create(**validated_data)

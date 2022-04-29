@@ -235,10 +235,10 @@ class Contact(models.Model):
 
     city = models.CharField(max_length=50, verbose_name='Город')
     street = models.CharField(max_length=100, verbose_name='Улица')
-    house = models.CharField(max_length=15, verbose_name='Дом', blank=True)
+    house = models.CharField(max_length=15, verbose_name='Дом')
     structure = models.CharField(max_length=15, verbose_name='Корпус', blank=True)
     building = models.CharField(max_length=15, verbose_name='Строение', blank=True)
-    apartment = models.CharField(max_length=15, verbose_name='Квартира', blank=True)
+    apartment = models.CharField(max_length=15, verbose_name='Квартира')
     phone = models.CharField(max_length=20, verbose_name='Телефон')
 
     class Meta:
