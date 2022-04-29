@@ -22,13 +22,14 @@ class ConfirmAccountSerializer(serializers.Serializer):
     token = serializers.CharField(max_length=150)
 
 
-class LoginAccountSerializer(serializers.ModelSerializer):
+class LoginAccountSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(max_length=150)
 
-    class Meta:
-        model = ConfirmEmailToken
-        fields = ['email', 'password']
+
+class PartnerUpdateSerializer(serializers.Serializer):
+    # url = serializers.URLField()
+    file = serializers.FileField()
 
 
 class ShopSerializer(serializers.ModelSerializer):

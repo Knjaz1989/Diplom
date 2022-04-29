@@ -34,6 +34,19 @@ GET http://localhost:8000/api/v1/partner/state
 Authorization: Token dd3ceeb699f381a3849fa74b0059760349888df2
 
 ###
+
+POST http://localhost:8000/api/v1/partner/update
+Authorization: Token dd3ceeb699f381a3849fa74b0059760349888df2
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="shop1.yaml"
+
+< ./shop1.yaml
+--WebAppBoundary--
+
+###
+
 # create buyer
 POST http://localhost:8000/api/v1/user/register
 Content-Type: application/json
