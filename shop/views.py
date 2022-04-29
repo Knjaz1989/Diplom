@@ -1,5 +1,6 @@
 from distutils.util import strtobool
 
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth import authenticate
@@ -20,7 +21,7 @@ from shop.models import User, Shop, Category, ConfirmEmailToken, ProductInfo, \
 from shop.permissions import IsBuyer
 from shop.serializers import UserSerializer, ShopSerializer, \
     CategorySerializer, ConfirmAccountSerializer, LoginAccountSerializer, \
-    PartnerUpdateSerializer, ContactSerializer
+    PartnerUpdateSerializer, ContactSerializer, ProductInfoSerializer
 
 
 class UserRegisterView(CreateAPIView):
@@ -197,3 +198,30 @@ class ContactView(ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class ProductInfoView(APIView):
+    """
+    Класс для поиска товаров
+    """
+    def get(self, request, *args, **kwargs):
+
+        query = Q(shop__state=True)
+        shop_id = request.query_params.get('shop_id')
+        category_id = request.query_params.get('category_id')
+
+        if shop_id:
+            query = query & Q(shop_id=shop_id)
+
+        if category_id:
+            query = query & Q(product__category_id=category_id)
+
+        # фильтруем и отбрасываем дуликаты
+        queryset = ProductInfo.objects.filter(
+            query).select_related(
+            'shop', 'product__category').prefetch_related(
+            'product_parameters__parameter').distinct()
+
+        serializer = ProductInfoSerializer(queryset, many=True)
+
+        return Response(serializer.data)

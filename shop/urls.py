@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from shop.views import UserRegisterView, ShopView, PartnerState, LoginAccount, \
-    ConfirmAccount, PartnerUpdate, ContactView, CategoryView
+    ConfirmAccount, PartnerUpdate, ContactView, CategoryView, ProductInfoView
 
 app_name = 'shops'
 
@@ -18,6 +18,7 @@ urlpatterns = [
     path('partner/update/', PartnerUpdate.as_view(), name='partner-update'),
     path('shops/', ShopView.as_view(), name="shop"),
     path('categories/', CategoryView.as_view(), name='categories'),
+    path('products/', ProductInfoView.as_view(), name='shops'),
 ]
 
 urlpatterns += router.urls
