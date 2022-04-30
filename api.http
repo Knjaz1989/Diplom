@@ -131,3 +131,8 @@ GET http://localhost:8000/api/v1/products/
 Authorization: Token 43da1cae50c510f0d1865a739b87c20d4aa67493
 
 ###
+
+GET http://localhost:8000/api/v1/basket/
+Authorization: Token 43da1cae50c510f0d1865a739b87c20d4aa67493
+
+###

@@ -5,8 +5,10 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_rest_passwordreset.tokens import get_token_generator
 
+basket = 'basket'
+
 STATE_CHOICES = (
-    ('basket', 'Статус корзины'),
+    (basket, 'Статус корзины'),
     ('new', 'Новый'),
     ('confirmed', 'Подтвержден'),
     ('assembled', 'Собран'),
@@ -261,7 +263,7 @@ class Order(models.Model):
 
     class Meta:
         verbose_name = 'Заказ'
-        verbose_name_plural = "Список заказ"
+        verbose_name_plural = "Список заказов"
         ordering = ('-dt',)
 
     def __str__(self):

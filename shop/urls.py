@@ -2,7 +2,8 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from shop.views import UserRegisterView, ShopView, PartnerState, LoginAccount, \
-    ConfirmAccount, PartnerUpdate, ContactView, CategoryView, ProductInfoView
+    ConfirmAccount, PartnerUpdate, ContactView, CategoryView, ProductInfoView, \
+    BasketView, OrderView
 
 app_name = 'shops'
 
@@ -19,6 +20,8 @@ urlpatterns = [
     path('shops/', ShopView.as_view(), name="shop"),
     path('categories/', CategoryView.as_view(), name='categories'),
     path('products/', ProductInfoView.as_view(), name='shops'),
+    path('basket/', BasketView.as_view(), name='basket'),
+    path('orders/', OrderView.as_view(), name='order'),
 ]
 
 urlpatterns += router.urls
