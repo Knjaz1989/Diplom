@@ -5,7 +5,6 @@ from django.dispatch import receiver, Signal
 
 from shop.models import User, ConfirmEmailToken
 
-new_order = Signal()
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

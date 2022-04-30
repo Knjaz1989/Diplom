@@ -25,7 +25,7 @@ from shop.serializers import UserSerializer, ShopSerializer, \
     CategorySerializer, ConfirmAccountSerializer, LoginAccountSerializer, \
     PartnerUpdateSerializer, ContactSerializer, ProductInfoSerializer, \
     OrderSerializer, OrderItemSerializer
-from shop.signals import new_order
+
 
 
 class UserRegisterView(CreateAPIView):

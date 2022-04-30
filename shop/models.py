@@ -80,6 +80,7 @@ class User(AbstractUser):
         error_messages={
             'unique': _("A user with that username already exists."),
         },
+        blank=True,
     )
     is_active = models.BooleanField(
         _('active'),
@@ -92,7 +93,7 @@ class User(AbstractUser):
     type = models.CharField(verbose_name='Тип пользователя', choices=USER_TYPE_CHOICES, max_length=5, default='buyer')
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return f'{self.email}, {self.first_name} {self.last_name}'
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -201,6 +202,9 @@ class ProductInfo(models.Model):
             models.UniqueConstraint(fields=['product', 'shop', 'external_id'], name='unique_product_info'),
         ]
 
+    def __str__(self):
+        return self.model
+
 
 class Parameter(models.Model):
     name = models.CharField(max_length=40, verbose_name='Название')
@@ -248,7 +252,7 @@ class Contact(models.Model):
         verbose_name_plural = "Список контактов пользователя"
 
     def __str__(self):
-        return f'{self.city} {self.street} {self.house}'
+        return f'{self.city} {self.street} {self.house}, user - {self.user.email}'
 
 
 class Order(models.Model):
@@ -256,7 +260,7 @@ class Order(models.Model):
                              related_name='orders', blank=True,
                              on_delete=models.CASCADE)
     dt = models.DateTimeField(auto_now_add=True)
-    state = models.CharField(verbose_name='Статус', choices=STATE_CHOICES, max_length=15)
+    state = models.CharField(verbose_name='Статус', choices=STATE_CHOICES, max_length=15, default=basket)
     contact = models.ForeignKey(Contact, verbose_name='Контакт',
                                 blank=True, null=True,
                                 on_delete=models.CASCADE)
