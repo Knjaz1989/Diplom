@@ -133,8 +133,8 @@ STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'shop.User'
 
 #send mail
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'localhost'
-# EMAIL_PORT = 1025
-# SERVER_EMAIL = 'django@my-domain.com'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025
+SERVER_EMAIL = 'django@my-domain.com'
