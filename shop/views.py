@@ -105,13 +105,10 @@ class PartnerUpdate(APIView):
     Класс для обновления прайса от поставщика
     """
     serializer_class = PartnerUpdateSerializer
-    permission_classes  = [IsAuthenticated]
+    permission_classes  = [IsAuthenticated, IsShop]
     authentication_classes = [TokenAuthentication]
 
     def post(self, request, *args, **kwargs):
-        if request.user.type != 'shop':
-            return Response({'Status': False, 'Error': 'Только для магазинов'}, status=403)
-
         file = request.data.get('file')
         if file:
 
@@ -145,8 +142,8 @@ class PartnerUpdate(APIView):
                                                         value=value)
 
                 return Response({'Status': "Success"})
-            return Response({"Status": False, "Errors": "У вас уже есть другой магазин"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"Errors": "У вас уже есть другой магазин"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'Errors': 'Не указаны все необходимые аргументы'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ShopView(ListAPIView):
