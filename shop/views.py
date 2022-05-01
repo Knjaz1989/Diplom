@@ -59,19 +59,16 @@ class LoginAccount(CreateAPIView):
     serializer_class = LoginAccountSerializer
     # Авторизация методом POST
     def post(self, request, *args, **kwargs):
-
-        if {'email', 'password'}.issubset(request.data):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
             user = authenticate(request, username=request.data['email'], password=request.data['password'])
-
             if user:
                 if user.is_active:
                     token, _ = Token.objects.get_or_create(user=user)
-
-                    return Response({'Status': True, 'Token': token.key})
-
-            return Response({'Status': False, 'Errors': 'Не удалось авторизовать'}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'Token': token.key})
+                return Response({'Errors': "Пользователь не подтвержден"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'Errors': 'Неверный логин или пароль'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors)
 
 
 class PartnerState(APIView):
