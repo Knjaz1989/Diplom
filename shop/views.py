@@ -168,6 +168,30 @@ class PartnerUpdate(APIView):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
+class PartnerOrders(APIView):
+    """
+    Класс для получения заказов поставщиками
+    """
+    permission_classes  = [IsAuthenticated, IsShop]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request, *args, **kwargs):
+        order = Order.objects.filter(
+            ordered_items__product_info__shop__user_id=request.user.id
+        ).exclude(state='basket').prefetch_related(
+            'ordered_items__product_info__product__category',
+            'ordered_items__product_info__product_parameters__parameter'
+        ).select_related('contact').annotate(
+            total_sum=Sum(
+                F('ordered_items__quantity') *
+                F('ordered_items__product_info__price')
+            )
+        ).distinct()
+
+        serializer = OrderSerializer(order, many=True)
+        return Response(serializer.data)
+
+
 class ShopView(ListAPIView):
     """
     Класс для просмотра списка магазинов

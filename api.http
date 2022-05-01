@@ -1,5 +1,5 @@
 # create supplier
-POST http://localhost:8000/api/v1/user/register
+POST http://localhost:8000/api/v1/user/register/
 Content-Type: application/json
 
 {
@@ -10,7 +10,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8000/api/v1/user/register/confirm
+POST http://localhost:8000/api/v1/user/register/confirm/
 Content-Type: application/json
 
 {
@@ -20,7 +20,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8000/api/v1/user/login
+POST http://localhost:8000/api/v1/user/login/
 Content-Type: application/json
 
 {
@@ -30,12 +30,12 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:8000/api/v1/partner/state
+GET http://localhost:8000/api/v1/partner/state/
 Authorization: Token a5d9e2acf7d4f2d7186fe348abcf2fbb8d5679cb
 
 ###
 
-POST http://localhost:8000/api/v1/partner/state
+POST http://localhost:8000/api/v1/partner/state/
 Authorization: Token a5d9e2acf7d4f2d7186fe348abcf2fbb8d5679cb
 Content-Type: application/json
 
@@ -44,7 +44,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8000/api/v1/partner/update
+POST http://localhost:8000/api/v1/partner/update/
 Authorization: Token a5d9e2acf7d4f2d7186fe348abcf2fbb8d5679cb
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 
@@ -57,7 +57,7 @@ Content-Disposition: form-data; name="file"; filename="shop1.yaml"
 ###
 
 # create buyer
-POST http://localhost:8000/api/v1/user/register
+POST http://localhost:8000/api/v1/user/register/
 Content-Type: application/json
 
 {
@@ -67,7 +67,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8000/api/v1/user/register/confirm
+POST http://localhost:8000/api/v1/user/register/confirm/
 Content-Type: application/json
 
 {
@@ -77,7 +77,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8000/api/v1/user/login
+POST http://localhost:8000/api/v1/user/login/
 Content-Type: application/json
 
 {
@@ -87,13 +87,13 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:8000/api/v1/partner/state
+GET http://localhost:8000/api/v1/partner/state/
 Authorization: Token 43da1cae50c510f0d1865a739b87c20d4aa67493
 Content-Type: application/json
 
 ###
 
-POST http://localhost:8000/api/v1/user/contact
+POST http://localhost:8000/api/v1/user/contact/
 Authorization: Token 43da1cae50c510f0d1865a739b87c20d4aa67493
 Content-Type: application/json
 
@@ -107,7 +107,7 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:8000/api/v1/user/contact
+GET http://localhost:8000/api/v1/user/contact/
 Authorization: Token 43da1cae50c510f0d1865a739b87c20d4aa67493
 
 ###
