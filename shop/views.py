@@ -1,30 +1,23 @@
 from distutils.util import strtobool
-
-from django.db import IntegrityError
-from ujson import loads as load_json
 from django.db.models import Q, Sum, F
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth import authenticate
-from django.http import JsonResponse
 from rest_framework.authtoken.models import Token
-from rest_framework.generics import CreateAPIView, ListAPIView, DestroyAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from yaml import load as load_yaml, Loader
-from django.core.validators import URLValidator
-from django.core.exceptions import ValidationError
-from requests import get
 from rest_framework.viewsets import ModelViewSet
-
 from shop.models import User, Shop, Category, ConfirmEmailToken, ProductInfo, \
     Product, Parameter, ProductParameter, Contact, Order, OrderItem
 from shop.permissions import IsBuyer, IsShop
 from shop.serializers import UserSerializer, ShopSerializer, \
     CategorySerializer, ConfirmAccountSerializer, LoginAccountSerializer, \
     PartnerUpdateSerializer, ContactSerializer, ProductInfoSerializer, \
-    OrderSerializer, BasketItemsSerializer, DeleteBasketItemsSerializator, OrderCreateSerializer
+    OrderSerializer, BasketItemsSerializer, DeleteBasketItemsSerializator, \
+    OrderCreateSerializer
 from shop.signals import new_order_signal
 
 
@@ -43,14 +36,17 @@ class ConfirmAccount(CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            token = ConfirmEmailToken.objects.filter(user__email=request.data['email'],
-                                                     key=request.data['token']).first()
+            token = ConfirmEmailToken.objects.filter(
+                user__email=request.data['email'],
+                key=request.data['token']
+            ).first()
             if token:
                 token.user.is_active = True
                 token.user.save()
                 token.delete()
                 return Response({'Status': True})
-            return Response({'Errors': 'Неправильно указан токен или email'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'Errors': 'Неправильно указан токен или email'},
+                            status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors)
 
 
@@ -64,13 +60,17 @@ class LoginAccount(CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            user = authenticate(request, username=request.data['email'], password=request.data['password'])
+            user = authenticate(request,
+                                username=request.data['email'],
+                                password=request.data['password'])
             if user:
                 if user.is_active:
                     token, _ = Token.objects.get_or_create(user=user)
                     return Response({'Token': token.key})
-                return Response({'Errors': "Пользователь не подтвержден"}, status=status.HTTP_400_BAD_REQUEST)
-            return Response({'Errors': 'Неверный логин или пароль'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'Errors': "Пользователь не подтвержден"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            return Response({'Errors': 'Неверный логин или пароль'},
+                            status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors)
 
 
@@ -93,12 +93,19 @@ class PartnerState(APIView):
         state = request.data.get('state')
         if state and len(request.data) == 1:
             try:
-                Shop.objects.filter(user_id=request.user.id).update(state=strtobool(state))
+                Shop.objects.filter(
+                    user_id=request.user.id
+                ).update(state=strtobool(state))
                 return Response({'Status': f"Changed on {state}"})
             except ValueError as error:
-                return Response({'Status': False, 'Errors': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'Status': False, 'Errors': str(error)},
+                                status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({'Status': False, 'Errors': 'Не указаны все необходимые аргументы или переданы лишние'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'Status': False,
+             'Errors': 'Не указаны все необходимые аргументы или переданы '
+                       'лишние'},
+            status=status.HTTP_400_BAD_REQUEST)
 
 
 class PartnerUpdate(APIView):
@@ -120,31 +127,45 @@ class PartnerUpdate(APIView):
 
             data = load_yaml(file, Loader=Loader)
             if data['shop'] == shop_name or not shop_name:
-                shop, _ = Shop.objects.get_or_create(name=data['shop'], user_id=request.user.id)
+                shop, _ = Shop.objects.get_or_create(
+                    name=data['shop'], user_id=request.user.id
+                )
                 for category in data['categories']:
-                    category_object, _ = Category.objects.get_or_create(id=category['id'], name=category['name'])
+                    category_object, _ = Category.objects.get_or_create(
+                        id=category['id'], name=category['name']
+                    )
                     category_object.shops.add(shop.id)
                     category_object.save()
                 ProductInfo.objects.filter(shop_id=shop.id).delete()
-                for item in data['goods']:
-                    product, _ = Product.objects.get_or_create(name=item['name'], category_id=item['category'])
 
-                    product_info = ProductInfo.objects.create(product_id=product.id,
-                                                              external_id=item['id'],
-                                                              model=item['model'],
-                                                              price=item['price'],
-                                                              price_rrc=item['price_rrc'],
-                                                              quantity=item['quantity'],
-                                                              shop_id=shop.id)
+                for item in data['goods']:
+                    product, _ = Product.objects.get_or_create(
+                        name=item['name'], category_id=item['category']
+                    )
+                    product_info = ProductInfo.objects.create(
+                        product_id=product.id,
+                        external_id=item['id'],
+                        model=item['model'],
+                        price=item['price'],
+                        price_rrc=item['price_rrc'],
+                        quantity=item['quantity'],
+                        shop_id=shop.id)
+
                     for name, value in item['parameters'].items():
-                        parameter_object, _ = Parameter.objects.get_or_create(name=name)
-                        ProductParameter.objects.create(product_info_id=product_info.id,
-                                                        parameter_id=parameter_object.id,
-                                                        value=value)
+                        parameter_object, _ = Parameter.objects.get_or_create(
+                            name=name
+                        )
+                        ProductParameter.objects.create(
+                            product_info_id=product_info.id,
+                            parameter_id=parameter_object.id,
+                            value=value
+                        )
 
                 return Response({'Status': "Success"})
-            return Response({"Errors": "У вас уже есть другой магазин"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'Errors': 'Не указаны все необходимые аргументы'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"Errors": "У вас уже есть другой магазин"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return Response({'Errors': 'Не указаны все необходимые аргументы'},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class ShopView(ListAPIView):
@@ -182,12 +203,15 @@ class ContactView(ModelViewSet):
         user_contacts = Contact.objects.filter(
             user_id=self.request.user.id)
         if len(user_contacts) == 5:
-            return Response({"Status": "У вас уже есть 5 контактов. Удалите или измените любой из них"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"Status": "У вас уже есть 5 контактов. "
+                                       "Удалите или измените любой из них"},
+                            status=status.HTTP_403_FORBIDDEN)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serializer.data,
+                        status=status.HTTP_201_CREATED, headers=headers)
 
 
 class ProductInfoView(APIView):
@@ -228,8 +252,11 @@ class BasketView(APIView):
         basket = Order.objects.filter(
             user_id=request.user.id, state='basket').prefetch_related(
             'ordered_items__product_info__product__category',
-            'ordered_items__product_info__product_parameters__parameter').annotate(
-            total_sum=Sum(F('ordered_items__quantity') * F('ordered_items__product_info__price'))).distinct()
+            'ordered_items__product_info__product_parameters__parameter'
+        ).annotate(total_sum=Sum(
+            F('ordered_items__quantity') *
+            F('ordered_items__product_info__price')
+        )).distinct()
 
         serializer = OrderSerializer(basket, many=True)
         return Response(serializer.data)
@@ -238,7 +265,8 @@ class BasketView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = BasketItemsSerializer(data=request.data)
         if serializer.is_valid():
-            basket, _ = Order.objects.get_or_create(user_id=request.user.id, state='basket')
+            basket, _ = Order.objects.get_or_create(user_id=request.user.id,
+                                                    state='basket')
             objects_created = 0
             for order_item in request.data["items"]:
                 order_item.update({'order': basket.id})
@@ -254,7 +282,8 @@ class BasketView(APIView):
     def delete(self, request, *args, **kwargs):
         serializer = DeleteBasketItemsSerializator(data=request.data)
         if serializer.is_valid():
-            basket, _ = Order.objects.get_or_create(user_id=request.user.id, state='basket')
+            basket, _ = Order.objects.get_or_create(user_id=request.user.id,
+                                                    state='basket')
             query = Q()
             objects_deleted = False
             for order_item_id in request.data["items"]:
@@ -263,20 +292,23 @@ class BasketView(APIView):
 
             if objects_deleted:
                 deleted_count = OrderItem.objects.filter(query).delete()[0]
-                return Response({'Status': True, 'Удалено объектов': deleted_count})
+                return Response({'Status': True,
+                                 'Удалено объектов': deleted_count})
         return Response(serializer.errors)
 
     # обновить количество товара в корзине
     def put(self, request, *args, **kwargs):
         serializer = BasketItemsSerializer(data=request.data)
         if serializer.is_valid():
-            basket, _ = Order.objects.get_or_create(user_id=request.user.id, state='basket')
+            basket, _ = Order.objects.get_or_create(user_id=request.user.id,
+                                                    state='basket')
             objects_updated = 0
             for order_item in request.data["items"]:
                     objects_updated += OrderItem.objects.filter(
                         order_id=basket.id, id=int(order_item['id'])
                     ).update(quantity=int(order_item['quantity']))
-            return Response({'Status': True, 'Обновлено объектов': objects_updated})
+            return Response({'Status': True,
+                             'Обновлено объектов': objects_updated})
         return Response(serializer.errors)
 
 
@@ -291,8 +323,12 @@ class OrderView(APIView):
         order = Order.objects.filter(
             user_id=request.user.id).exclude(state='basket').prefetch_related(
             'ordered_items__product_info__product__category',
-            'ordered_items__product_info__product_parameters__parameter').select_related('contact').annotate(
-            total_sum=Sum(F('ordered_items__quantity') * F('ordered_items__product_info__price'))).distinct()
+            'ordered_items__product_info__product_parameters__parameter'
+        ).select_related('contact').annotate(
+            total_sum=Sum(
+                F('ordered_items__quantity') *
+                F('ordered_items__product_info__price')
+            )).distinct()
 
         serializer = OrderSerializer(order, many=True)
         return Response(serializer.data)
@@ -301,14 +337,23 @@ class OrderView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = OrderCreateSerializer(data=request.data)
         if serializer.is_valid():
-            order = Order.objects.filter(user_id=request.user.id, id=int(request.data['order_id'])).first()
-            contact = Contact.objects.filter(user_id=request.user.id, id=int(request.data['contact_id'])).first()
+            order = Order.objects.filter(user_id=request.user.id,
+                                         id=int(request.data['order_id'])
+                                         ).first()
+            contact = Contact.objects.filter(user_id=request.user.id,
+                                             id=int(request.data['contact_id'])
+                                             ).first()
             if order and contact:
                 order.contact_id = int(request.data['contact_id'])
                 order.state = 'new'
                 order.save()
                 new_order_signal(request.user.email, order.id)
-                return Response({'Message': f"Заказ с номером {order.id} был успешно сформирован"})
-            return Response({'Status': False, 'Errors': 'Данный заказ или контакт вам не принадлежат'}, status=status.HTTP_400_BAD_REQUEST)
-                    # new_order.send(sender=self.__class__, user_id=request.user.id)
+                return Response(
+                    {'Message': f"Заказ с номером {order.id} "
+                                f"был успешно сформирован"}
+                )
+            return Response(
+                {'Status': False,
+                 'Errors': 'Данный заказ или контакт вам не принадлежат'},
+                status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors)
