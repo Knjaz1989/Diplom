@@ -24,7 +24,8 @@ from shop.permissions import IsBuyer, IsShop
 from shop.serializers import UserSerializer, ShopSerializer, \
     CategorySerializer, ConfirmAccountSerializer, LoginAccountSerializer, \
     PartnerUpdateSerializer, ContactSerializer, ProductInfoSerializer, \
-    OrderSerializer, OrderItemSerializer, BasketItemsSerializer, DeleteBasketItemsSerializator
+    OrderSerializer, BasketItemsSerializer, DeleteBasketItemsSerializator, OrderCreateSerializer
+from shop.signals import new_order_signal
 
 
 class UserRegisterView(CreateAPIView):
@@ -285,7 +286,7 @@ class OrderView(APIView):
     """
     permission_classes = [IsAuthenticated, IsBuyer]
     authentication_classes = [TokenAuthentication]
-    # получить мои заказы
+    # получить мои оформленные заказы
     def get(self, request, *args, **kwargs):
         order = Order.objects.filter(
             user_id=request.user.id).exclude(state='basket').prefetch_related(
@@ -298,19 +299,16 @@ class OrderView(APIView):
 
     # разместить заказ из корзины
     def post(self, request, *args, **kwargs):
-        if {'id', 'contact'}.issubset(request.data):
-            if request.data['id'].isdigit():
-                try:
-                    is_updated = Order.objects.filter(
-                        user_id=request.user.id, id=request.data['id']).update(
-                        contact_id=request.data['contact'],
-                        state='new')
-                except IntegrityError as error:
-                    print(error)
-                    return Response({'Status': False, 'Errors': 'Неправильно указаны аргументы'}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    if is_updated:
-                        new_order.send(sender=self.__class__, user_id=request.user.id)
-                        return Response({'Status': True})
-
-        return Response({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = OrderCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            order = Order.objects.filter(user_id=request.user.id, id=int(request.data['order_id'])).first()
+            contact = Contact.objects.filter(user_id=request.user.id, id=int(request.data['contact_id'])).first()
+            if order and contact:
+                order.contact_id = int(request.data['contact_id'])
+                order.state = 'new'
+                order.save()
+                new_order_signal(request.user.email, order.id)
+                return Response({'Message': f"Заказ с номером {order.id} был успешно сформирован"})
+            return Response({'Status': False, 'Errors': 'Данный заказ или контакт вам не принадлежат'}, status=status.HTTP_400_BAD_REQUEST)
+                    # new_order.send(sender=self.__class__, user_id=request.user.id)
+        return Response(serializer.errors)

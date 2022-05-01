@@ -91,9 +91,14 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = ('id', 'product_info', 'quantity',)
         read_only_fields = ('id',)
-        # extra_kwargs = {
-        #     'order': {'write_only': True}
-        # }
+
+
+class BasketItemsSerializer(serializers.Serializer):
+    items = serializers.ListField(child=OrderItemSerializer(), allow_empty=False)
+
+
+class DeleteBasketItemsSerializator(serializers.Serializer):
+    items = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
 
 
 class OrderItemCreateSerializer(OrderItemSerializer):
@@ -110,17 +115,14 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ('id', 'ordered_items', 'state', 'dt', 'total_sum', 'contact',)
         read_only_fields = ('id',)
+        # extra_kwargs = {"password": {"write_only": True}}
 
 
-class OrderItemAddSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderItem
-        fields = ['order', 'product_info', 'quantity']
+class OrderCreateSerializer(serializers.Serializer):
+    order_id = serializers.IntegerField()
+    contact_id = serializers.IntegerField()
 
-
-class BasketItemsSerializer(serializers.Serializer):
-    items = serializers.ListField(child=OrderItemSerializer(), allow_empty=False)
-
-
-class DeleteBasketItemsSerializator(serializers.Serializer):
-    items = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
+# class OrderItemAddSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = OrderItem
+#         fields = ['order', 'product_info', 'quantity']
