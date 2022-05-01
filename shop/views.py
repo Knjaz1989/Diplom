@@ -20,7 +20,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from shop.models import User, Shop, Category, ConfirmEmailToken, ProductInfo, \
     Product, Parameter, ProductParameter, Contact, Order, OrderItem
-from shop.permissions import IsBuyer
+from shop.permissions import IsBuyer, IsShop
 from shop.serializers import UserSerializer, ShopSerializer, \
     CategorySerializer, ConfirmAccountSerializer, LoginAccountSerializer, \
     PartnerUpdateSerializer, ContactSerializer, ProductInfoSerializer, \
@@ -37,6 +37,7 @@ class ConfirmAccount(CreateAPIView):
     Класс для подтверждения почтового адреса
     """
     serializer_class = ConfirmAccountSerializer
+
     # Регистрация методом POST
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -57,6 +58,7 @@ class LoginAccount(CreateAPIView):
     Класс для авторизации пользователей
     """
     serializer_class = LoginAccountSerializer
+
     # Авторизация методом POST
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -76,23 +78,17 @@ class PartnerState(APIView):
     Класс для работы со статусом поставщика
     """
     serializer_class = ShopSerializer
-    permission_classes  = [IsAuthenticated]
+    permission_classes  = [IsAuthenticated, IsShop]
     authentication_classes = [TokenAuthentication]
+
     # получить текущий статус
     def get(self, request, *args, **kwargs):
-
-        if request.user.type != 'shop':
-            return Response({'Status': False, 'Error': 'Только для магазинов'}, status=status.HTTP_403_FORBIDDEN)
-
         shop = request.user.shop
         serializer = ShopSerializer(shop)
         return Response(serializer.data)
 
     # изменить текущий статус
     def post(self, request, *args, **kwargs):
-
-        if request.user.type != 'shop':
-            return JsonResponse({'Status': False, 'Error': 'Только для магазинов'}, status=status.HTTP_403_FORBIDDEN)
         state = request.data.get('state')
         if state and len(request.data) == 1:
             try:
