@@ -27,7 +27,6 @@ from shop.serializers import UserSerializer, ShopSerializer, \
     OrderSerializer, OrderItemSerializer
 
 
-
 class UserRegisterView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -40,10 +39,8 @@ class ConfirmAccount(CreateAPIView):
     serializer_class = ConfirmAccountSerializer
     # Регистрация методом POST
     def post(self, request, *args, **kwargs):
-
-        # проверяем обязательные аргументы
-        if {'email', 'token'}.issubset(request.data):
-
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
             token = ConfirmEmailToken.objects.filter(user__email=request.data['email'],
                                                      key=request.data['token']).first()
             if token:
@@ -51,10 +48,8 @@ class ConfirmAccount(CreateAPIView):
                 token.user.save()
                 token.delete()
                 return Response({'Status': True})
-            else:
-                return Response({'Status': False, 'Errors': 'Неправильно указан токен или email'}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'Errors': 'Неправильно указан токен или email'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors)
 
 
 class LoginAccount(CreateAPIView):

@@ -1,5 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
+from rest_framework.response import Response
+
 from shop.models import User, Shop, Category, ConfirmEmailToken, Contact, Product, ProductParameter, ProductInfo, Order, \
     OrderItem
 from rest_framework.exceptions import ValidationError, bad_request
@@ -87,11 +89,11 @@ class ProductInfoSerializer(serializers.ModelSerializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
-        fields = ('id', 'product_info', 'quantity')#, 'order',)
+        fields = ('id', 'product_info', 'quantity', 'order',)
         read_only_fields = ('id',)
-        # extra_kwargs = {
-        #     'order': {'write_only': True}
-        # }
+        extra_kwargs = {
+            'order': {'write_only': True}
+        }
 
 
 class OrderItemCreateSerializer(OrderItemSerializer):

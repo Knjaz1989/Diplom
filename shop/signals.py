@@ -6,8 +6,7 @@ from django.dispatch import receiver, Signal
 from shop.models import User, ConfirmEmailToken
 
 
-
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+@receiver(post_save, sender=User)
 def new_user_registered_signal(sender, instance, created, **kwargs):
     """
     отправляем письмо с подтрердждением почты
@@ -17,7 +16,7 @@ def new_user_registered_signal(sender, instance, created, **kwargs):
 
     msg = EmailMultiAlternatives(
         # title:
-        f"Password Reset Token for {token.user.email}",
+        f"Confirm Token for {token.user.email}",
         # message:
         token.key,
         # from:

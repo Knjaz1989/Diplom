@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from shop.models import User, Shop, Category, Order, OrderItem, Contact
+from shop.models import User, Shop, Category, Order, OrderItem, Contact, ConfirmEmailToken
 
 
 @admin.register(User)
@@ -32,3 +32,8 @@ class OrderItemAdmin(admin.ModelAdmin):
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(ConfirmEmailToken)
+class ConfirmEmailTokenAdmin(admin.ModelAdmin):
+    list_display = ('user', 'key', 'created_at',)
