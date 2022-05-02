@@ -1,7 +1,6 @@
 from distutils.util import strtobool
 from django.db.models import Q, Sum, F
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView, ListAPIView
@@ -18,7 +17,7 @@ from shop.serializers import UserSerializer, ShopSerializer, \
     PartnerUpdateSerializer, ContactSerializer, ProductInfoSerializer, \
     OrderSerializer, BasketItemsSerializer, DeleteBasketItemsSerializator, \
     OrderCreateSerializer
-from shop.signals import new_order_signal
+from shop.signals import new_order
 
 
 class UserRegisterView(CreateAPIView):
@@ -80,7 +79,6 @@ class PartnerState(APIView):
     """
     serializer_class = ShopSerializer
     permission_classes  = [IsAuthenticated, IsShop]
-    authentication_classes = [TokenAuthentication]
 
     # получить текущий статус
     def get(self, request, *args, **kwargs):
@@ -114,7 +112,6 @@ class PartnerUpdate(APIView):
     """
     serializer_class = PartnerUpdateSerializer
     permission_classes  = [IsAuthenticated, IsShop]
-    authentication_classes = [TokenAuthentication]
 
     def post(self, request, *args, **kwargs):
         file = request.data.get('file')
@@ -173,7 +170,6 @@ class PartnerOrders(APIView):
     Класс для получения заказов поставщиками
     """
     permission_classes  = [IsAuthenticated, IsShop]
-    authentication_classes = [TokenAuthentication]
 
     def get(self, request, *args, **kwargs):
         order = Order.objects.filter(
@@ -214,7 +210,6 @@ class ContactView(ModelViewSet):
     """
     serializer_class = ContactSerializer
     permission_classes = [IsAuthenticated, IsBuyer]
-    authentication_classes = [TokenAuthentication]
 
     # получить мои контакты
     def get_queryset(self):
@@ -270,7 +265,7 @@ class BasketView(APIView):
     Класс для работы с корзиной пользователя
     """
     permission_classes = [IsAuthenticated, IsBuyer]
-    authentication_classes = [TokenAuthentication]
+
     # получить корзину
     def get(self, request, *args, **kwargs):
         basket = Order.objects.filter(
@@ -341,7 +336,7 @@ class OrderView(APIView):
     Класс для получения и размещения заказов пользователями
     """
     permission_classes = [IsAuthenticated, IsBuyer]
-    authentication_classes = [TokenAuthentication]
+
     # получить мои оформленные заказы
     def get(self, request, *args, **kwargs):
         order = Order.objects.filter(
@@ -371,7 +366,9 @@ class OrderView(APIView):
                 order.contact_id = int(request.data['contact_id'])
                 order.state = 'new'
                 order.save()
-                new_order_signal(request.user.email, order.id)
+                new_order.send(sender=self.__class__,       # Вызываем сигнал и передаем атрибуты
+                               email=request.user.email,
+                               order_id=order.id)
                 return Response(
                     {'Message': f"Заказ с номером {order.id} "
                                 f"был успешно сформирован"}

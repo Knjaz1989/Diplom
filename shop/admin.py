@@ -1,12 +1,14 @@
 from django.contrib import admin
-
-# Register your models here.
-from shop.models import User, Shop, Category, Order, OrderItem, Contact, ConfirmEmailToken
+from shop.models import User, Shop, Category, Order, OrderItem, Contact, \
+    ConfirmEmailToken
 
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    exclude = ["date_joined", "is_staff", "groups", "user_permissions", "is_superuser", "last_login"]
+    exclude = [
+        "date_joined", "is_staff", "groups", "user_permissions",
+        "is_superuser", "last_login"
+    ]
 
 
 @admin.register(Shop)

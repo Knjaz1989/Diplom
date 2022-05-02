@@ -1,10 +1,8 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-from rest_framework.response import Response
-
-from shop.models import User, Shop, Category, ConfirmEmailToken, Contact, Product, ProductParameter, ProductInfo, Order, \
-    OrderItem
-from rest_framework.exceptions import ValidationError, bad_request
+from shop.models import User, Shop, Category, Contact, Product, Order, \
+    ProductParameter, ProductInfo, OrderItem
+from shop.signals import user_register
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -16,6 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["password"] = make_password(validated_data["password"])
         user = User.objects.create(**validated_data)
+        user_register.send(sender=self.__class__, user_id=user.id) # Вызываем сигнал
 
         return user
 
@@ -121,8 +120,3 @@ class OrderSerializer(serializers.ModelSerializer):
 class OrderCreateSerializer(serializers.Serializer):
     order_id = serializers.IntegerField()
     contact_id = serializers.IntegerField()
-
-# class OrderItemAddSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = OrderItem
-#         fields = ['order', 'product_info', 'quantity']
