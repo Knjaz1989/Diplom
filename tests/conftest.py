@@ -40,6 +40,12 @@ def other_supplier_token(other_supplier):
 
 
 @pytest.fixture
+def other_supplier_shop(other_supplier):
+    shop = Shop.objects.create(user_id=other_supplier.id, name="Евросеть")
+    return shop
+
+
+@pytest.fixture
 def buyer():
     buyer = User.objects.create(
         email="buyer_user@mail.ru", password="Buyer_password",
