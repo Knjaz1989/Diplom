@@ -3,8 +3,9 @@ from django.db.models import Q, Sum, F
 from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from rest_framework.decorators import permission_classes
 from rest_framework.generics import CreateAPIView, ListAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from yaml import load as load_yaml, Loader
@@ -16,7 +17,7 @@ from shop.serializers import UserSerializer, ShopSerializer, \
     CategorySerializer, ConfirmAccountSerializer, LoginAccountSerializer, \
     PartnerUpdateSerializer, ContactSerializer, ProductInfoSerializer, \
     OrderSerializer, BasketItemsSerializer, DeleteBasketItemsSerializator, \
-    OrderCreateSerializer
+    OrderCreateSerializer, PartnerStateSerializer
 from shop.signals import new_order
 
 
@@ -77,33 +78,33 @@ class PartnerState(APIView):
     """
     Класс для работы со статусом поставщика
     """
-    serializer_class = ShopSerializer
     permission_classes  = [IsAuthenticated, IsShop]
 
     # получить текущий статус
     def get(self, request, *args, **kwargs):
-        shop = request.user.shop
+        try:
+            shop = request.user.shop
+        except:
+            return Response({"Errors": "У вас еще нет созданного или "
+                                       "загруженного магазина"},
+                            status=status.HTTP_400_BAD_REQUEST)
         serializer = ShopSerializer(shop)
         return Response(serializer.data)
 
     # изменить текущий статус
     def post(self, request, *args, **kwargs):
-        state = request.data.get('state')
-        if state and len(request.data) == 1:
-            try:
-                Shop.objects.filter(
-                    user_id=request.user.id
-                ).update(state=strtobool(state))
+        serializer = PartnerStateSerializer(data=request.data)
+        if serializer.is_valid():
+            state = request.data.get('state')
+            shop = Shop.objects.filter(user_id=request.user.id)
+            if shop:
+                shop.update(state=strtobool(state))
                 return Response({'Status': f"Changed on {state}"})
-            except ValueError as error:
-                return Response({'Status': False, 'Errors': str(error)},
-                                status=status.HTTP_400_BAD_REQUEST)
+            return Response({"Errors": "У вас еще нет созданного или "
+                                       "загруженного магазина"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(
-            {'Status': False,
-             'Errors': 'Не указаны все необходимые аргументы или переданы '
-                       'лишние'},
-            status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors)
 
 
 class PartnerUpdate(APIView):
@@ -188,12 +189,32 @@ class PartnerOrders(APIView):
         return Response(serializer.data)
 
 
-class ShopView(ListAPIView):
+class ShopView(CreateAPIView, ListAPIView):
     """
     Класс для просмотра списка магазинов
     """
     queryset = Shop.objects.filter(state=True)
     serializer_class = ShopSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            self.permission_classes = [AllowAny]
+        else:
+            self.permission_classes = [IsAuthenticated, IsShop]
+        return super(self.__class__, self).get_permissions()
+
+    def post(self, request, *args, **kwargs):
+        serializer = ShopSerializer(data=request.data)
+        if serializer.is_valid():
+            shop = Shop.objects.filter(user_id=request.user.id)
+            if shop:
+                return Response({"Errors": "У вас уже есть магазин"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            request.data["user_id"] = request.user.id
+            Shop.objects.create(**request.data)
+            return Response({"Message": "Ваш магазин создан"},
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors)
 
 
 class CategoryView(ListAPIView):

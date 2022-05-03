@@ -29,8 +29,11 @@ class LoginAccountSerializer(serializers.Serializer):
     password = serializers.CharField(max_length=150)
 
 
+class PartnerStateSerializer(serializers.Serializer):
+    state = serializers.BooleanField()
+
+
 class PartnerUpdateSerializer(serializers.Serializer):
-    # url = serializers.URLField()
     file = serializers.FileField()
 
 
