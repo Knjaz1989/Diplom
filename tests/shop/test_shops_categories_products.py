@@ -5,6 +5,7 @@ from django.urls import reverse
 client = Client()
 shop_url = reverse("shops:shop")
 category_url = reverse("shops:categories")
+products_url = reverse("shops:shops")
 
 
 @pytest.mark.django_db
@@ -32,5 +33,10 @@ class TestShopsCategories:
 
     def test_category(self):
         response = client.get(category_url)
+
+        assert response.status_code == 200
+
+    def test_products(self):
+        response = client.get(products_url)
 
         assert response.status_code == 200
