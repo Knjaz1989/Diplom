@@ -3,9 +3,8 @@ from django.db.models import Q, Sum, F
 from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import permission_classes
 from rest_framework.generics import CreateAPIView, ListAPIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from yaml import load as load_yaml, Loader
@@ -195,26 +194,23 @@ class ShopView(CreateAPIView, ListAPIView):
     """
     queryset = Shop.objects.filter(state=True)
     serializer_class = ShopSerializer
-
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            self.permission_classes = [AllowAny]
-        else:
-            self.permission_classes = [IsAuthenticated, IsShop]
-        return super(self.__class__, self).get_permissions()
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def post(self, request, *args, **kwargs):
-        serializer = ShopSerializer(data=request.data)
-        if serializer.is_valid():
-            shop = Shop.objects.filter(user_id=request.user.id)
-            if shop:
-                return Response({"Errors": "У вас уже есть магазин"},
-                                status=status.HTTP_400_BAD_REQUEST)
-            request.data["user_id"] = request.user.id
-            Shop.objects.create(**request.data)
-            return Response({"Message": "Ваш магазин создан"},
-                            status=status.HTTP_201_CREATED)
-        return Response(serializer.errors)
+        if request.user.type == "shop":
+            serializer = ShopSerializer(data=request.data)
+            if serializer.is_valid():
+                shop = Shop.objects.filter(user_id=request.user.id)
+                if shop:
+                    return Response({"Errors": "У вас уже есть магазин"},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                data = request.data.copy().dict()
+                data["user_id"] = request.user.id
+                Shop.objects.create(**data)
+                return Response({"Message": "Ваш магазин создан"},
+                                status=status.HTTP_201_CREATED)
+            return Response(serializer.errors)
+        return Response("У вас нет прав на выполнение данной команды", status=status.HTTP_403_FORBIDDEN)
 
 
 class CategoryView(ListAPIView):

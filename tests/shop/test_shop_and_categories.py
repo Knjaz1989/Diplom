@@ -3,7 +3,7 @@ from django.test import Client
 from django.urls import reverse
 
 client = Client()
-shop_url = reverse("shops:shops")
+shop_url = reverse("shops:shop")
 category_url = reverse("shops:categories")
 
 
