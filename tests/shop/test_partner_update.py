@@ -18,7 +18,7 @@ class TestPartnerUpdate:
     @pytest.mark.parametrize("token, status_code", data)
     def test_upload_data(self, token, status_code, other_supplier_shop):
         header = f"Token {token}"
-        with open("../../shop1.yaml", "rb") as file:
+        with open("shop1.yaml", "rb") as file:
             response = client.post(partner_update_url,
                                    HTTP_AUTHORIZATION=header,
                                    data={"file": file})
