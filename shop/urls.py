@@ -5,6 +5,7 @@ from rest_framework.routers import DefaultRouter
 from shop.views import UserRegisterView, ShopView, PartnerState, LoginAccount, \
     ConfirmAccount, PartnerUpdate, ContactView, CategoryView, ProductInfoView, \
     BasketView, OrderView, PartnerOrders
+from shop.yasg import urlpatterns as swagger_url
 
 app_name = 'shops'
 
@@ -29,3 +30,5 @@ urlpatterns = [
 ]
 
 urlpatterns += router.urls
+
+urlpatterns += swagger_url
