@@ -2,7 +2,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from shop.models import User, Shop, Category, Contact, Product, Order, \
     ProductParameter, ProductInfo, OrderItem
-from shop.signals import user_register
+from shop.tasks import new_user_register
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["password"] = make_password(validated_data["password"])
         user = User.objects.create(**validated_data)
-        user_register.send(sender=self.__class__, user_id=user.id) # Вызываем сигнал
+        new_user_register.delay(user_id=user.id) # Вызываем сигнал
 
         return user
 

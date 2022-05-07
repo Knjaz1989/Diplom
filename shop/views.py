@@ -17,7 +17,7 @@ from shop.serializers import UserSerializer, ShopSerializer, \
     PartnerUpdateSerializer, ContactSerializer, ProductInfoSerializer, \
     OrderSerializer, BasketItemsSerializer, DeleteBasketItemsSerializator, \
     OrderCreateSerializer, PartnerStateSerializer
-from shop.signals import new_order
+from shop.tasks import new_order
 
 
 class UserRegisterView(CreateAPIView):
@@ -383,9 +383,9 @@ class OrderView(APIView):
                 order.contact_id = int(request.data['contact_id'])
                 order.state = 'new'
                 order.save()
-                new_order.send(sender=self.__class__,       # Вызываем сигнал и передаем атрибуты
-                               email=request.user.email,
-                               order_id=order.id)
+                new_order.delay(email=request.user.email,   # Вызываем сигнал и передаем атрибуты
+                                order_id=order.id)
+
                 return Response(
                     {'Message': f"Заказ с номером {order.id} "
                                 f"был успешно сформирован"}

@@ -3,14 +3,11 @@ from django.core.mail import EmailMultiAlternatives
 from django.dispatch import receiver, Signal
 from django_rest_passwordreset.signals import reset_password_token_created
 from shop.models import ConfirmEmailToken
-
-user_register = Signal()
-
-new_order = Signal()
+from orders.celery import app
 
 
-@receiver(user_register)
-def new_user_registered_signal(user_id, **kwargs):
+@app.task
+def new_user_register(user_id):
     """
     отправляем письмо с подтрердждением почты
     """
@@ -28,9 +25,9 @@ def new_user_registered_signal(user_id, **kwargs):
     )
     msg.send()
 
-
-@receiver(reset_password_token_created)
-def password_reset_token_created(sender, instance, reset_password_token, **kwargs):
+@app.task
+# @receiver(reset_password_token_created)
+def password_reset_token_created(reset_password_token):
     """
     Отправляем письмо с токеном для сброса пароля
     When a token is created, an e-mail needs to be sent to the user
@@ -52,9 +49,9 @@ def password_reset_token_created(sender, instance, reset_password_token, **kwarg
     )
     msg.send()
 
-
-@receiver(new_order)
-def new_order_signal(email, order_id, **kwargs):
+@app.task
+# @receiver(new_order)
+def new_order(email, order_id):
     """
     отправяем письмо при cоздании заказа
     """
