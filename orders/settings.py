@@ -134,6 +134,7 @@ STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'shop.User'
 
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend',
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
@@ -185,4 +186,4 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Moscow'
-CELERY_ALWAYS_EAGER = True
+CELERY_TASK_ALWAYS_EAGER = True

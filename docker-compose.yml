@@ -24,8 +24,8 @@ services:
     container_name: redis
     ports:
       - '6380:6379'
-#
 #  celery:
+#    restart: always
 #    container_name: celery
 #    image: celery:latest
 #    command: celery -A orders worker -l info
