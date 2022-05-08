@@ -19,9 +19,11 @@ services:
       - "1025:1025"
       - "8025:8025"
 
-#  redis:
-#    image: redis:latest
-#    container_name: redis
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - '6380:6379'
 #
 #  celery:
 #    container_name: celery
