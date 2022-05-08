@@ -1,7 +1,5 @@
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from django.dispatch import receiver, Signal
-from django_rest_passwordreset.signals import reset_password_token_created
 from shop.models import ConfirmEmailToken
 from orders.celery import app
 
@@ -25,9 +23,9 @@ def new_user_register(user_id):
     )
     msg.send()
 
+
 @app.task
-# @receiver(reset_password_token_created)
-def password_reset_token_created(reset_password_token):
+def send_password_reset_token(user, key, email):
     """
     Отправляем письмо с токеном для сброса пароля
     When a token is created, an e-mail needs to be sent to the user
@@ -39,18 +37,18 @@ def password_reset_token_created(reset_password_token):
     """
     msg = EmailMultiAlternatives(
         # title:
-        f"Password Reset Token for {reset_password_token.user}",
+        f"Password Reset Token for {user}",
         # message:
-        reset_password_token.key,
+        key,
         # from:
         settings.EMAIL_HOST_USER,
         # to:
-        [reset_password_token.user.email]
+        [email]
     )
     msg.send()
 
+
 @app.task
-# @receiver(new_order)
 def new_order(email, order_id):
     """
     отправяем письмо при cоздании заказа
